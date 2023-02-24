@@ -1,0 +1,104 @@
+
+
+---
+title: "DATA 605 Homework Week 1"
+date: "2023-01-27"
+---
+# HAZAL GUNDUZ
+
+One of the most useful applications for linear algebra in data science is image manipulation.  We often need to compress, expand, warp, skew, etc. images.  To do so, we left multiply a transformation matrix by each of the point vectors.  
+
+For this assignment, build the first letters for both your first and last name using point plots in R.  For example, the following code builds an H.
+
+x=c(rep(0,500),seq(0,1,length.out=1000), rep(1,500))
+
+y=c(seq(-1,1,length.out=500),rep(0,1000), seq(-1,1,length.out=500))
+
+z=rbind(x,y)
+
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3))
+
+Then, write R code that will left multiply (%>%) a square matrix (x) against each of the vectors of points (y). Initially, that square matrix will be the Identity matrix.  
+
+Use a loop that changes the transformation matrix incrementally to demonstrate 1) shear, 2) scaling, 3)rotation, and 4) projection in animated fashion. 
+
+
+```{r}
+library(dplyr)
+library(plotly)
+library(gifski)
+library(anim.plots)
+```
+
+
+*First letters of my first and last name are HG. And I would like to plot of letters "HG".*
+
+
+```{r}
+# Plot H
+x=c(rep(-2,500), seq(-2,-1,length.out=1000), rep(-1,500))
+y=c(seq(-1,1,length.out=500), rep(0,1000), seq(-1,1,length.out=500))
+z=rbind(x,y)
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3), col='pink')
+
+# Plot G
+x=c(seq(1,2,length.out=500), rep(1,1000), seq(1,2,length.out=500), seq(2,2,length.out=500), seq(1.5,2,length.out=500))
+y=c(rep(-1,500), seq(-1,1,length.out=1000), rep(1,500), seq(0,-1,length=500), seq(0,0,length.out=500))
+z=rbind(x,y)
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3), col='blue')
+
+# Plot HG
+x=c(rep(-2,500), seq(-2,-1,length.out=1000), rep(-1,500), seq(1,2,length.out=500), rep(1,1000), seq(1,2,length.out=500), seq(2,2,length.out=500), seq(1.5,2,length.out=500))
+y=c(seq(-1,1,length.out=500), rep(0,1000), seq(-1,1,length.out=500), rep(-1,500), seq(-1,1,length.out=1000), rep(1,500), seq(0,-1,length=500), seq(0,0,length.out=500))
+z=rbind(x,y)
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3), col='green')
+```
+
+*Write a code that will left multiply (%>%) a square matrix (x) against each of the vectors of points (y).*
+
+
+```{r}
+leftMultiply <- function(x, y) {
+  x %*% y
+}
+leftMultiply(matrix(rep(seq(-2,2, length.out=3),3), nrow=3, ncol=3), diag(3))
+```
+
+# 1) Shear
+
+```{r}
+for (i in seq(0,1,length.out=8)) {
+  z1<-apply(z,2,function(x) leftMultiply(x,matrix(c(1,i,0,1), nrow=2, ncol=2)))
+   plot(z1[2,]~z1[1,], xlim=c(-3,3), ylim=c(-3,3), col='darkgreen')
+}
+```
+
+# 2) Scaling 
+
+```{r}
+for (i in seq(0,1,length.out=10)) {
+  z1<-apply(z,2,function(x) leftMultiply(x,matrix(c(i,0,0,i), nrow=2, ncol=2)))
+   plot(z1[2,]~z1[1,], xlim=c(-3,3), ylim=c(-3,3), col='purple')
+}
+```
+
+# 3) Rotation
+
+```{r}
+for (i in seq(0,pi*2,length.out=10)) {
+  z1<-apply(z,2,function(x) leftMultiply(x,matrix(c(cos(i), -sin(i), sin(i), cos(i)), nrow=2, ncol=2)))
+   plot(z1[2,]~z1[1,], xlim=c(-3,3), ylim=c(-3,3), col='orange')
+}
+```
+
+# 4) Projection
+
+```{r}
+for (i in seq(0,2*pi,length.out=12)) {
+  tempZ<-rbind(z,rep(0, ncol(z)))
+  z1<-apply(tempZ,2,function(x) leftMultiply(x,matrix(c(1,0,0,0, cos(i), -sin(i), 0 , sin(i), cos(i)), nrow=3, ncol=3)))
+  plot(z1[2,]~z1[1,], xlim=c(-3,3), ylim=c(-3,3), col='red')
+}
+```
+
+Rpubs =>  https://rpubs.com/gunduzhazal/996188
